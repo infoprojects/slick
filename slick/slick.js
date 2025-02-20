@@ -170,7 +170,6 @@
             _.setPosition = $.proxy(_.setPosition, _);
             _.swipeHandler = $.proxy(_.swipeHandler, _);
             _.dragHandler = $.proxy(_.dragHandler, _);
-            _.keyHandler = $.proxy(_.keyHandler, _);
 
             _.instanceUid = instanceUid++;
 
@@ -762,10 +761,6 @@
                 .off('click.slick', _.changeSlide)
                 .off('mouseenter.slick', $.proxy(_.interrupt, _, true))
                 .off('mouseleave.slick', $.proxy(_.interrupt, _, false));
-
-            if (_.options.accessibility === true) {
-                _.$dots.off('keydown.slick', _.keyHandler);
-            }
         }
 
         _.$slider.off('focus.slick blur.slick');
@@ -773,11 +768,6 @@
         if (_.options.arrows === true && _.slideCount > _.options.slidesToShow) {
             _.$prevArrow && _.$prevArrow.off('click.slick', _.changeSlide);
             _.$nextArrow && _.$nextArrow.off('click.slick', _.changeSlide);
-
-            if (_.options.accessibility === true) {
-                _.$prevArrow && _.$prevArrow.off('keydown.slick', _.keyHandler);
-                _.$nextArrow && _.$nextArrow.off('keydown.slick', _.keyHandler);
-            }
         }
 
         _.$list.off('touchstart.slick mousedown.slick', _.swipeHandler);
@@ -790,10 +780,6 @@
         $(document).off(_.visibilityChange, _.visibility);
 
         _.cleanUpSlideEvents();
-
-        if (_.options.accessibility === true) {
-            _.$list.off('keydown.slick', _.keyHandler);
-        }
 
         if (_.options.focusOnSelect === true) {
             $(_.$slideTrack).children().off('click.slick', _.selectHandler);
@@ -1363,7 +1349,7 @@
                 $(this).find('button').first().attr({
                     'id': 'slick-slide-control' + _.instanceUid + i,
                     'aria-label': _.options.dotButtonLabel.replace('{0}', i + 1).replace('{1}', numDotGroups),
-                    'tabindex': '-1'
+                    'tabindex': '0'
                 });
 
             }).eq(_.currentSlide).find('button').attr({
@@ -1398,11 +1384,6 @@
                .on('click.slick', {
                     message: 'next'
                }, _.changeSlide);
-
-            if (_.options.accessibility === true) {
-                _.$prevArrow.on('keydown.slick', _.keyHandler);
-                _.$nextArrow.on('keydown.slick', _.keyHandler);
-            }
         }
 
     };
@@ -1415,10 +1396,6 @@
             $('li', _.$dots).on('click.slick', {
                 message: 'index'
             }, _.changeSlide);
-
-            if (_.options.accessibility === true) {
-                _.$dots.on('keydown.slick', _.keyHandler);
-            }
         }
 
         if (_.options.dots === true && _.options.pauseOnDotsHover === true && _.slideCount > _.options.slidesToShow) {
@@ -1470,10 +1447,6 @@
 
         $(document).on(_.visibilityChange, $.proxy(_.visibility, _));
 
-        if (_.options.accessibility === true) {
-            _.$list.on('keydown.slick', _.keyHandler);
-        }
-
         if (_.options.focusOnSelect === true) {
             $(_.$slideTrack).children().on('click.slick', _.selectHandler);
         }
@@ -1506,46 +1479,6 @@
 
         }
 
-    };
-
-    Slick.prototype.keyHandler = function (event) {
-        var _ = this;
-        //Dont slide if the cursor is inside the form fields and arrow keys are pressed
-        if (!event.target.tagName.match('TEXTAREA|INPUT|SELECT')) {
-            if (event.keyCode === 37 && _.options.accessibility === true) {
-                var $dotsContainer = $(event.currentTarget).closest('.' + _.options.dotsClass);
-                var dotIsFocused = $dotsContainer.length === 1;
-
-                var message = _.options.rtl === true ? 'next' : 'previous';
-
-                _.changeSlide({
-                    data: {
-                        message: message
-                    }
-                });
-
-                if (dotIsFocused) {
-                    $dotsContainer.find('li.slick-active button')
-                        .focus();
-                }
-            } else if (event.keyCode === 39 && _.options.accessibility === true) {
-                var $dotsContainer = $(event.currentTarget).closest('.' + _.options.dotsClass);
-                var dotIsFocused = $dotsContainer.length === 1;
-
-                var message = _.options.rtl === true ? 'previous' : 'next';
-
-                _.changeSlide({
-                    data: {
-                        message: message
-                    }
-                });
-
-                if (dotIsFocused) {
-                    $dotsContainer.find('li.slick-active button')
-                        .focus();
-                }
-            }
-        }
     };
 
     Slick.prototype.lazyLoad = function() {
